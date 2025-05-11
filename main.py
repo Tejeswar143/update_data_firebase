@@ -18,6 +18,10 @@ class SensorData(BaseModel):
     heartRate: Optional[float]
     spo2: Optional[float]
 
+@app.get("/health")
+def health_check():
+    return {"status": "ok", "message": "API is running"}
+
 @app.post("/sensor-data/")
 def upload_sensor_data(data: SensorData):
     try:
