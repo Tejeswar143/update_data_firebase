@@ -18,6 +18,9 @@ class SensorData(BaseModel):
     heartRate: Optional[float]
     spo2: Optional[float]
 
+class TempData(BaseModel):
+    temp: Optional[float]
+
 @app.get("/health")
 def health_check():
     return {"status": "ok", "message": "API is running"}
@@ -36,6 +39,29 @@ def upload_sensor_data(data: SensorData):
         payload = {
             "heartRate": data.heartRate,
             "spo2": data.spo2,
+            "timestamp": now.isoformat()
+        }
+
+        db.reference(path).set(payload)
+
+        return {"message": "Data stored", "path": path}
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/temp-data/")
+def upload_sensor_data(data: TempData):
+    try:
+        now = datetime.utcnow()
+        year = str(now.year)
+        month = str(now.month).zfill(2)
+        day = str(now.day).zfill(2)
+        unique_id = str(uuid.uuid4())
+
+        path = f"/temp_data/{year}/{month}/{day}/{unique_id}"
+
+        payload = {
+            "temp": data.temp,
             "timestamp": now.isoformat()
         }
 
