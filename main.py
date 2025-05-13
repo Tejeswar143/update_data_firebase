@@ -76,7 +76,7 @@ def upload_sensor_data(data: TempData):
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/ecg-data/")
-def upload_sensor_data(data: TempData):
+def upload_sensor_data(data: EcgData):
     try:
         now = datetime.utcnow()
         year = str(now.year)
@@ -87,7 +87,7 @@ def upload_sensor_data(data: TempData):
         path = f"/ecg_data/{year}/{month}/{day}/{unique_id}"
 
         payload = {
-            "temp": data.temp,
+            "temp": data.ecg,
             "timestamp": now.isoformat()
         }
 
