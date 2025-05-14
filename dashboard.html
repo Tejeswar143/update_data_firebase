@@ -1,141 +1,135 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Live Sensor Dashboard</title>
-    <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f0f4f8;
-            margin: 0;
-            padding: 20px;
-        }
-        h1 {
-            text-align: center;
-            color: #333;
-        }
-        .dashboard {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-            margin-top: 30px;
-        }
-        .card {
-            background: white;
-            border-radius: 16px;
-            padding: 20px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-        }
-        .card h2 {
-            margin-top: 0;
-        }
-        .value {
-            font-size: 2.5rem;
-            font-weight: bold;
-            color: #007BFF;
-        }
-        .timestamp {
-            font-size: 0.9rem;
-            color: #666;
-        }
-        .ecg-line {
-            height: 100px;
-            background: repeating-linear-gradient(
-                to right,
-                #ff4d4d 0,
-                #ff4d4d 2px,
-                transparent 2px,
-                transparent 4px
-            );
-            position: relative;
-            animation: heartbeat 1s infinite ease-in-out;
-        }
-        @keyframes heartbeat {
-            0%, 100% { transform: scaleY(1); }
-            50% { transform: scaleY(1.5); }
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Live Sensor Dashboard</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f0f4f8;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+    .dashboard {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+      margin-top: 30px;
+    }
+    .card {
+      background: white;
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+    .card h2 {
+      margin-top: 0;
+    }
+    .value {
+      font-size: 2.5rem;
+      font-weight: bold;
+      color: #007BFF;
+    }
+    .timestamp {
+      font-size: 0.9rem;
+      color: #666;
+    }
+    .ecg-line {
+      height: 100px;
+      background: repeating-linear-gradient(
+        to right,
+        #ff4d4d 0,
+        #ff4d4d 2px,
+        transparent 2px,
+        transparent 4px
+      );
+      position: relative;
+      animation: heartbeat 1s infinite ease-in-out;
+    }
+    @keyframes heartbeat {
+      0%, 100% { transform: scaleY(1); }
+      50% { transform: scaleY(1.5); }
+    }
+  </style>
 </head>
 <body>
-    <h1>Live Sensor Dashboard</h1>
-    <div class="dashboard">
-        <div class="card" id="tempCard">
-            <h2>Temperature</h2>
-            <div class="value" id="tempValue">--</div>
-            <div class="timestamp" id="tempTime">--</div>
-        </div>
-
-        <div class="card" id="ecgCard">
-            <h2>ECG</h2>
-            <div class="ecg-line"></div>
-            <div class="timestamp" id="ecgTime">--</div>
-        </div>
-
-        <div class="card" id="spo2Card">
-            <h2>SpO2</h2>
-            <div class="value" id="spo2Value" style="color: #28a745;">--</div>
-            <div class="timestamp" id="spo2Time">--</div>
-        </div>
+  <h1>Live Sensor Dashboard</h1>
+  <div class="dashboard">
+    <div class="card" id="tempCard">
+      <h2>Temperature</h2>
+      <div class="value" id="tempValue">--</div>
+      <div class="timestamp" id="tempTime">--</div>
     </div>
 
-   <!-- Firebase SDKs -->
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+    <div class="card" id="ecgCard">
+      <h2>ECG</h2>
+      <div class="value" id="ecgValue">--</div>
+      <div class="timestamp" id="ecgTime">--</div>
+      <div class="ecg-line"></div>
+    </div>
 
-<script>
-  // Your Firebase config
-  const firebaseConfig = {
-    apiKey: "AIzaSyDeiKD-vD3sycGkuq2pSexl_WE8JtpF9PU",
-    authDomain: "monitor-health-65515.firebaseapp.com",
-    databaseURL: "https://monitor-health-65515-default-rtdb.firebaseio.com",
-    projectId: "monitor-health-65515",
-    storageBucket: "monitor-health-65515.firebasestorage.app",
-    messagingSenderId: "24147108979",
-    appId: "1:24147108979:web:32b63ea28add5e77ccb606",
-    measurementId: "G-BP8N1RTMZX"
-  };
+    <div class="card" id="spo2Card">
+      <h2>SpO2</h2>
+      <div class="value" id="spo2Value" style="color: #28a745;">--</div>
+      <div class="timestamp" id="spo2Time">--</div>
+    </div>
+  </div>
 
-  // Initialize Firebase
-  firebase.initializeApp(firebaseConfig);
-</script>
-<script>
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+
+  <script>
+    // Firebase Config
+    const firebaseConfig = {
+      apiKey: "AIzaSyDeiKD-vD3sycGkuq2pSexl_WE8JtpF9PU",
+      authDomain: "monitor-health-65515.firebaseapp.com",
+      databaseURL: "https://monitor-health-65515-default-rtdb.firebaseio.com",
+      projectId: "monitor-health-65515",
+      storageBucket: "monitor-health-65515.appspot.com",
+      messagingSenderId: "24147108979",
+      appId: "1:24147108979:web:32b63ea28add5e77ccb606",
+      measurementId: "G-BP8N1RTMZX"
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
-  
-   // Spo2 listener
-db.ref("/spo2_data").limitToLast(1).on("child_added", (snapshot) => {
-  const data = snapshot.val();
-  if (!data || data.spo2 === undefined || data.heartRate === undefined) {
-    console.warn("Incomplete spo2 data", data);
-    return;
-  }
-  document.getElementById("spo2Value").textContent = `${data.spo2} %`;
-  document.getElementById("spo2Time").textContent = new Date(data.timestamp).toLocaleTimeString();
-});
 
-// Temperature listener
-db.ref("/temperature").limitToLast(1).on("child_added", (snapshot) => {
-  const data = snapshot.val();
-  if (!data || data.temp === undefined) {
-    console.warn("Incomplete temperature data", data);
-    return;
-  }
-  document.getElementById("tempValue").textContent = `${data.temp} °C`;
-  document.getElementById("tempTime").textContent = new Date(data.timestamp).toLocaleTimeString();
-});
+    // Spo2 listener
+    db.ref("/spo2_data").limitToLast(1).on("child_added", (snapshot) => {
+      const data = snapshot.val();
+      console.log("SpO2 Data:", data);
+      if (!data || data.spo2 === undefined || data.heartRate === undefined) return;
 
-// ECG listener
-db.ref("/ecg").limitToLast(1).on("child_added", (snapshot) => {
-  const data = snapshot.val();
-  if (!data || data.ecg === undefined) {
-    console.warn("Incomplete ECG data", data);
-    return;
-  }
-  document.getElementById("ecgTime").textContent = new Date(data.timestamp).toLocaleTimeString();
-});
+      document.getElementById("spo2Value").textContent = `${data.spo2} %`;
+      document.getElementById("spo2Time").textContent = new Date(data.timestamp).toLocaleTimeString();
+    });
 
+    // Temperature listener
+    db.ref("/temperature").limitToLast(1).on("child_added", (snapshot) => {
+      const data = snapshot.val();
+      console.log("Temperature Data:", data);
+      if (!data || data.temp === undefined) return;
+
+      document.getElementById("tempValue").textContent = `${data.temp} °C`;
+      document.getElementById("tempTime").textContent = new Date(data.timestamp).toLocaleTimeString();
+    });
+
+    // ECG listener
+    db.ref("/ecg").limitToLast(1).on("child_added", (snapshot) => {
+      const data = snapshot.val();
+      console.log("ECG Data:", data);
+      if (!data || data.ecg === undefined) return;
+
+      document.getElementById("ecgValue").textContent = `${data.ecg}`;
+      document.getElementById("ecgTime").textContent = new Date(data.timestamp).toLocaleTimeString();
+    });
   </script>
-  
-  
 </body>
 </html>
