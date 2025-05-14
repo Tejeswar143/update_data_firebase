@@ -77,7 +77,7 @@ def upload_sensor_data(data: EcgData):
     try:
         now = datetime.utcnow()
         payload = {
-            "temp": data.ecg,
+            "ecg": data.ecg,
             "timestamp": now.isoformat()
         }
 

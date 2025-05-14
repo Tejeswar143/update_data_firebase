@@ -102,26 +102,38 @@
 <script>
     const db = firebase.database();
   
-    // SpO2 + Heart Rate Listener
-    db.ref("/spo2_data").limitToLast(1).on("child_added", snapshot => {
-      const data = snapshot.val();
-      document.getElementById("spo2Value").textContent = data.spo2 + " %";
-      document.getElementById("spo2Time").textContent = new Date(data.timestamp).toLocaleTimeString();
-    });
-  
-    // Temperature Listener
-    db.ref("/temperature").limitToLast(1).on("child_added", snapshot => {
-      const data = snapshot.val();
-      document.getElementById("tempValue").textContent = data.temp + " °C";
-      document.getElementById("tempTime").textContent = new Date(data.timestamp).toLocaleTimeString();
-    });
-  
-    // ECG Listener
-    db.ref("/ecg").limitToLast(1).on("child_added", snapshot => {
-      const data = snapshot.val();
-      document.getElementById("ecgTime").textContent = new Date(data.timestamp).toLocaleTimeString();
-      // Optionally show ECG value or waveform animation
-    });
+   // Spo2 listener
+db.ref("/spo2_data").limitToLast(1).on("child_added", (snapshot) => {
+  const data = snapshot.val();
+  if (!data || data.spo2 === undefined || data.heartRate === undefined) {
+    console.warn("Incomplete spo2 data", data);
+    return;
+  }
+  document.getElementById("spo2Value").textContent = `${data.spo2} %`;
+  document.getElementById("spo2Time").textContent = new Date(data.timestamp).toLocaleTimeString();
+});
+
+// Temperature listener
+db.ref("/temperature").limitToLast(1).on("child_added", (snapshot) => {
+  const data = snapshot.val();
+  if (!data || data.temp === undefined) {
+    console.warn("Incomplete temperature data", data);
+    return;
+  }
+  document.getElementById("tempValue").textContent = `${data.temp} °C`;
+  document.getElementById("tempTime").textContent = new Date(data.timestamp).toLocaleTimeString();
+});
+
+// ECG listener
+db.ref("/ecg").limitToLast(1).on("child_added", (snapshot) => {
+  const data = snapshot.val();
+  if (!data || data.ecg === undefined) {
+    console.warn("Incomplete ECG data", data);
+    return;
+  }
+  document.getElementById("ecgTime").textContent = new Date(data.timestamp).toLocaleTimeString();
+});
+
   </script>
   
   
