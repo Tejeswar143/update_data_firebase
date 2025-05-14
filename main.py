@@ -35,62 +35,21 @@ def get_dashboard():
     with open("dashboard.html", "r") as f:
         return HTMLResponse(content=f.read(), status_code=200)
 
-@app.get("/latest-data")
-def get_latest_data():
-    try:
-        now = datetime.utcnow()
-        year = str(now.year)
-        month = str(now.month).zfill(2)
-        day = str(now.day).zfill(2)
-
-        base_paths = {
-            "temp": f"/temp_data/{year}/{month}/{day}",
-            "spo2": f"/sensor_data/{year}/{month}/{day}",
-            "ecg": f"/ecg_data/{year}/{month}/{day}"
-        }
-
-        def get_latest_value(path):
-            ref = db.reference(path)
-            data = ref.get()
-            if not data:
-                return None, None
-            last_key = sorted(data.keys())[-1]
-            return data[last_key], data[last_key]['timestamp']
-
-        temp_data, temp_time = get_latest_value(base_paths["temp"])
-        sensor_data, spo2_time = get_latest_value(base_paths["spo2"])
-        ecg_data, ecg_time = get_latest_value(base_paths["ecg"])
-
-        return {
-            "temp": temp_data.get("temp") if temp_data else None,
-            "tempTime": temp_time if temp_time else "No data",
-            "spo2": sensor_data.get("spo2") if sensor_data else None,
-            "spo2Time": spo2_time if spo2_time else "No data",
-            "ecgTime": ecg_time if ecg_time else "No data"
-        }
-    except Exception as e:
-        return {"error": str(e)}
-
 @app.post("/sensor-data/")
 def upload_sensor_data(data: SensorData):
     try:
         now = datetime.utcnow()
-        year = str(now.year)
-        month = str(now.month).zfill(2)
-        day = str(now.day).zfill(2)
-        unique_id = str(uuid.uuid4())
-
-        path = f"/sensor_data/{year}/{month}/{day}/{unique_id}"
 
         payload = {
             "heartRate": data.heartRate,
             "spo2": data.spo2,
             "timestamp": now.isoformat()
         }
+        
+        ref = db.reference("/spo2_data").push()
+        ref.set(payload)
 
-        db.reference(path).set(payload)
-
-        return {"message": "Data stored", "path": path}
+        return {"message": "Data stored"}
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -99,21 +58,16 @@ def upload_sensor_data(data: SensorData):
 def upload_sensor_data(data: TempData):
     try:
         now = datetime.utcnow()
-        year = str(now.year)
-        month = str(now.month).zfill(2)
-        day = str(now.day).zfill(2)
-        unique_id = str(uuid.uuid4())
-
-        path = f"/temp_data/{year}/{month}/{day}/{unique_id}"
 
         payload = {
             "temp": data.temp,
             "timestamp": now.isoformat()
         }
 
-        db.reference(path).set(payload)
+        ref = db.reference("/temperature").push()
+        ref.set(payload)
 
-        return {"message": "Data stored", "path": path}
+        return {"message": "Data stored"}
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -122,21 +76,15 @@ def upload_sensor_data(data: TempData):
 def upload_sensor_data(data: EcgData):
     try:
         now = datetime.utcnow()
-        year = str(now.year)
-        month = str(now.month).zfill(2)
-        day = str(now.day).zfill(2)
-        unique_id = str(uuid.uuid4())
-
-        path = f"/ecg_data/{year}/{month}/{day}/{unique_id}"
-
         payload = {
             "temp": data.ecg,
             "timestamp": now.isoformat()
         }
 
-        db.reference(path).set(payload)
+        ref = db.reference("/ecg").push()
+        ref.set(payload)
 
-        return {"message": "Data stored", "path": path}
+        return {"message": "Data stored"}
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

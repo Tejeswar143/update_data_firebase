@@ -79,26 +79,51 @@
         </div>
     </div>
 
-    <script>
-        async function fetchData() {
-            try {
-                const res = await fetch("/latest-data");
-                const data = await res.json();
+   <!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
 
-                document.getElementById("tempValue").textContent = data.temp + " °C";
-                document.getElementById("tempTime").textContent = data.tempTime;
+<script>
+  // Your Firebase config
+  const firebaseConfig = {
+    apiKey: "AIzaSyDeiKD-vD3sycGkuq2pSexl_WE8JtpF9PU",
+    authDomain: "monitor-health-65515.firebaseapp.com",
+    databaseURL: "https://monitor-health-65515-default-rtdb.firebaseio.com",
+    projectId: "monitor-health-65515",
+    storageBucket: "monitor-health-65515.firebasestorage.app",
+    messagingSenderId: "24147108979",
+    appId: "1:24147108979:web:32b63ea28add5e77ccb606",
+    measurementId: "G-BP8N1RTMZX"
+  };
 
-                document.getElementById("spo2Value").textContent = data.spo2 + " %";
-                document.getElementById("spo2Time").textContent = data.spo2Time;
-
-                document.getElementById("ecgTime").textContent = data.ecgTime;
-            } catch (error) {
-                console.error("Error fetching data:", error);
-            }
-        }
-
-        setInterval(fetchData, 2000);
-        fetchData();
-    </script>
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+</script>
+<script>
+    const db = firebase.database();
+  
+    // SpO2 + Heart Rate Listener
+    db.ref("/spo2_data").limitToLast(1).on("child_added", snapshot => {
+      const data = snapshot.val();
+      document.getElementById("spo2Value").textContent = data.spo2 + " %";
+      document.getElementById("spo2Time").textContent = new Date(data.timestamp).toLocaleTimeString();
+    });
+  
+    // Temperature Listener
+    db.ref("/temperature").limitToLast(1).on("child_added", snapshot => {
+      const data = snapshot.val();
+      document.getElementById("tempValue").textContent = data.temp + " °C";
+      document.getElementById("tempTime").textContent = new Date(data.timestamp).toLocaleTimeString();
+    });
+  
+    // ECG Listener
+    db.ref("/ecg").limitToLast(1).on("child_added", snapshot => {
+      const data = snapshot.val();
+      document.getElementById("ecgTime").textContent = new Date(data.timestamp).toLocaleTimeString();
+      // Optionally show ECG value or waveform animation
+    });
+  </script>
+  
+  
 </body>
 </html>
