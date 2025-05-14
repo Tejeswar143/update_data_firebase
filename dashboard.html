@@ -137,10 +137,14 @@
     </div>
 
     <div class="card" id="spo2Card">
+        <h2>Heart Rate</h2>
+        <div class="value" id="heartRateValue">--</div>
+        <div class="timestamp" id="heartRateTime">--</div>
       <h2>SpO2</h2>
       <div class="value" id="spo2Value" style="color: #28a745;">--</div>
       <div class="timestamp" id="spo2Time">--</div>
     </div>
+
   </div>
 
   <div class="status" id="connectionStatus">
@@ -285,7 +289,7 @@
             console.log("SpO2 data is empty");
             return;
           }
-
+          updateUI("heartRateValue", data.heartRate, " bpm");
           updateUI("spo2Value", data.spo2, " %");
           updateUI("spo2Time", formatTimestamp(data.timestamp));
         } catch (error) {
