@@ -55,6 +55,13 @@
       0%, 100% { transform: scaleY(1); }
       50% { transform: scaleY(1.5); }
     }
+    .status {
+      padding: 10px;
+      background-color: #f8f9fa;
+      border-radius: 8px;
+      margin-top: 20px;
+      font-size: 14px;
+    }
   </style>
 </head>
 <body>
@@ -80,6 +87,10 @@
     </div>
   </div>
 
+  <div class="status" id="connectionStatus">
+    Connection status: Connecting to Firebase...
+  </div>
+
   <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
@@ -98,38 +109,143 @@
     };
 
     // Initialize Firebase
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
+    try {
+      firebase.initializeApp(firebaseConfig);
+      const db = firebase.database();
+      document.getElementById("connectionStatus").textContent = "Connection status: Connected to Firebase";
+      
+      // Function to safely update UI elements
+      function updateUI(elementId, value, suffix = "") {
+        const element = document.getElementById(elementId);
+        if (element) {
+          element.textContent = value !== undefined && value !== null ? 
+            `${value}${suffix}` : "--";
+        }
+      }
 
-    // Spo2 listener
-    db.ref("/spo2_data").limitToLast(1).on("child_added", (snapshot) => {
-      const data = snapshot.val();
-      console.log("SpO2 Data:", data);
-      if (!data || data.spo2 === undefined || data.heartRate === undefined) return;
+      // Function to format timestamp
+      function formatTimestamp(timestamp) {
+        if (!timestamp) return "--";
+        try {
+          return new Date(timestamp).toLocaleTimeString();
+        } catch (e) {
+          console.error("Error formatting timestamp:", e);
+          return "--";
+        }
+      }
 
-      document.getElementById("spo2Value").textContent = `${data.spo2} %`;
-      document.getElementById("spo2Time").textContent = new Date(data.timestamp).toLocaleTimeString();
-    });
+      // Better error handling for SpO2 data
+      db.ref("/spo2_data").limitToLast(1).on("value", (snapshot) => {
+        try {
+          document.getElementById("connectionStatus").textContent = "Connection status: Receiving SpO2 data";
+          console.log("SpO2 raw snapshot:", snapshot.val());
+          
+          if (!snapshot.exists()) {
+            console.log("No SpO2 data available");
+            return;
+          }
+          
+          // Get the first (and only) child in the snapshot
+          let data = null;
+          snapshot.forEach((childSnapshot) => {
+            data = childSnapshot.val();
+            return true; // Break after first item
+          });
+          
+          console.log("SpO2 Processed Data:", data);
+          
+          if (!data) {
+            console.log("SpO2 data is empty");
+            return;
+          }
+          
+          updateUI("spo2Value", data.spo2, " %");
+          updateUI("spo2Time", formatTimestamp(data.timestamp));
+        } catch (error) {
+          console.error("Error processing SpO2 data:", error);
+          document.getElementById("connectionStatus").textContent = 
+            `Connection error (SpO2): ${error.message}`;
+        }
+      });
 
-    // Temperature listener
-    db.ref("/temperature").limitToLast(1).on("child_added", (snapshot) => {
-      const data = snapshot.val();
-      console.log("Temperature Data:", data);
-      if (!data || data.temp === undefined) return;
+      // Temperature listener with better error handling
+      db.ref("/temperature").limitToLast(1).on("value", (snapshot) => {
+        try {
+          console.log("Temperature raw snapshot:", snapshot.val());
+          
+          if (!snapshot.exists()) {
+            console.log("No temperature data available");
+            return;
+          }
+          
+          // Get the first (and only) child in the snapshot
+          let data = null;
+          snapshot.forEach((childSnapshot) => {
+            data = childSnapshot.val();
+            return true; // Break after first item
+          });
+          
+          console.log("Temperature Processed Data:", data);
+          
+          if (!data) {
+            console.log("Temperature data is empty");
+            return;
+          }
+          
+          updateUI("tempValue", data.temp, " °C");
+          updateUI("tempTime", formatTimestamp(data.timestamp));
+        } catch (error) {
+          console.error("Error processing temperature data:", error);
+        }
+      });
 
-      document.getElementById("tempValue").textContent = `${data.temp} °C`;
-      document.getElementById("tempTime").textContent = new Date(data.timestamp).toLocaleTimeString();
-    });
-
-    // ECG listener
-    db.ref("/ecg").limitToLast(1).on("child_added", (snapshot) => {
-      const data = snapshot.val();
-      console.log("ECG Data:", data);
-      if (!data || data.ecg === undefined) return;
-
-      document.getElementById("ecgValue").textContent = `${data.ecg}`;
-      document.getElementById("ecgTime").textContent = new Date(data.timestamp).toLocaleTimeString();
-    });
+      // ECG listener with better error handling
+      db.ref("/ecg").limitToLast(1).on("value", (snapshot) => {
+        try {
+          console.log("ECG raw snapshot:", snapshot.val());
+          
+          if (!snapshot.exists()) {
+            console.log("No ECG data available");
+            return;
+          }
+          
+          // Get the first (and only) child in the snapshot
+          let data = null;
+          snapshot.forEach((childSnapshot) => {
+            data = childSnapshot.val();
+            return true; // Break after first item
+          });
+          
+          console.log("ECG Processed Data:", data);
+          
+          if (!data) {
+            console.log("ECG data is empty");
+            return;
+          }
+          
+          updateUI("ecgValue", data.ecg);
+          updateUI("ecgTime", formatTimestamp(data.timestamp));
+        } catch (error) {
+          console.error("Error processing ECG data:", error);
+        }
+      });
+      
+      // Add error event listeners
+      db.ref(".info/connected").on("value", (snap) => {
+        if (snap.val() === true) {
+          document.getElementById("connectionStatus").textContent = 
+            "Connection status: Connected to Firebase";
+        } else {
+          document.getElementById("connectionStatus").textContent = 
+            "Connection status: Disconnected from Firebase";
+        }
+      });
+      
+    } catch (error) {
+      console.error("Firebase initialization error:", error);
+      document.getElementById("connectionStatus").textContent = 
+        `Firebase initialization error: ${error.message}`;
+    }
   </script>
 </body>
 </html>
