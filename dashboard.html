@@ -147,7 +147,9 @@
 
   </div>
 
-  
+  <!-- <div class="status" id="connectionStatus">
+    Connection status: Connecting to Firebase...
+  </div> -->
 
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
@@ -172,7 +174,7 @@
       const ecgPath = document.getElementById('ecgPath');
       const ecgSvg = document.getElementById('ecgSvg');
       const ecgValueDisplay = document.getElementById('ecgValue'); // Get the display element
-      document.getElementById("connectionStatus").textContent = "Connection status: Connected to Firebase";
+    //   document.getElementById("connectionStatus").textContent = "Connection status: Connected to Firebase";
 
       // Function to safely update UI elements
       function updateUI(elementId, value, suffix = "") {
@@ -267,7 +269,7 @@
       // Better error handling for SpO2 data
       db.ref("/spo2_data").limitToLast(1).on("value", (snapshot) => {
         try {
-          document.getElementById("connectionStatus").textContent = "Connection status: Receiving SpO2 data";
+        //   document.getElementById("connectionStatus").textContent = "Connection status: Receiving SpO2 data";
           console.log("SpO2 raw snapshot:", snapshot.val());
 
           if (!snapshot.exists()) {
@@ -329,13 +331,13 @@
 
       // Add error event listeners
       db.ref(".info/connected").on("value", (snap) => {
-        if (snap.val() === true) {
-          document.getElementById("connectionStatus").textContent =
-            "Connection status: Connected to Firebase";
-        } else {
-          document.getElementById("connectionStatus").textContent =
-            "Connection status: Disconnected from Firebase";
-        }
+        // if (snap.val() === true) {
+        //   document.getElementById("connectionStatus").textContent =
+        //     "Connection status: Connected to Firebase";
+        // } else {
+        //   document.getElementById("connectionStatus").textContent =
+        //     "Connection status: Disconnected from Firebase";
+        // }
       });
 
     } catch (error) {
