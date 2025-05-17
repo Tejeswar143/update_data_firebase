@@ -189,7 +189,16 @@
       function formatTimestamp(timestamp) {
         if (!timestamp) return "--";
         try {
-          return new Date(timestamp);
+            return new Date(timestamp).toLocaleString("en-US", {
+                weekday: "short", // Wed
+                year: "numeric",
+                month: "short", // May
+                day: "2-digit",
+                hour: "2-digit",
+                minute: "2-digit",
+                second: "2-digit",
+                hour12: false, // 24-hour format
+            });
         } catch (e) {
           console.error("Error formatting timestamp:", e);
           return "--";
@@ -250,16 +259,44 @@
           }
 
           const ecgDataPoints = [];
-          snapshot.forEach((childSnapshot) => {
+            snapshot.forEach((childSnapshot) => {
             const data = childSnapshot.val();
             if (data) {
-              ecgDataPoints.push({ value: data.ecg, timestamp: data.timestamp });
+                ecgDataPoints.push({ value: data.ecg, timestamp: data.timestamp });
             }
-          });
+            });
 
-          // Sort data by timestamp to ensure correct order for the graph
-          ecgDataPoints.sort((a, b) => a.timestamp - b.timestamp);
-          drawECG(ecgDataPoints);
+            // Sort data by timestamp to ensure correct order for the graph
+            ecgDataPoints.sort((a, b) => a.timestamp - b.timestamp);
+
+            // Draw ECG waveform
+            drawECG(ecgDataPoints);
+
+            // === RR Interval Calculation ===
+            const rrIntervals = [];
+            let lastRPeakTime = null;
+
+            // Optional: set a threshold manually or compute dynamically
+            const threshold = 0.8; // Adjust based on your ECG signal amplitude
+
+            for (let i = 1; i < ecgDataPoints.length - 1; i++) {
+            const prev = ecgDataPoints[i - 1].value;
+            const curr = ecgDataPoints[i].value;
+            const next = ecgDataPoints[i + 1].value;
+
+            // Simple R-peak condition: local maximum above threshold
+            if (curr > threshold && curr > prev && curr > next) {
+                const currentTime = ecgDataPoints[i].timestamp;
+
+                if (lastRPeakTime !== null) {
+                const rr = currentTime - lastRPeakTime; // RR interval in ms
+                rrIntervals.push(rr);
+                console.log(`RR interval: ${rr} ms`);
+                }
+
+                lastRPeakTime = currentTime;
+            }
+            }
 
         } catch (error) {
           console.error("Error processing ECG data:", error);
@@ -289,7 +326,7 @@
             console.log("SpO2 data is empty");
             return;
           }
-          updateUI("heartRateValue", data.heartRate, " bpm");
+          updateUI("heartRateValue", parseInt(data.heartRate), " bpm");
           updateUI("spo2Value", data.spo2, " %");
           updateUI("spo2Time", formatTimestamp(data.timestamp));
         } catch (error) {
